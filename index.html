@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LeadFlow CRM</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --card: #21253a;
+    --border: #2e3247; --primary: #5b6af0; --primary-h: #7381f5;
+    --success: #22c55e; --warn: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+    --text: #e2e8f0; --muted: #8892a4; --radius: 10px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
+  a { color: var(--primary); text-decoration: none; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; min-height: 100vh; }
+  #sidebar {
+    width: 220px; flex-shrink: 0; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    padding: 0; position: fixed; top: 0; left: 0; height: 100vh; z-index: 10;
+  }
+  .sidebar-logo {
+    padding: 20px 18px 14px; font-size: 18px; font-weight: 700; color: var(--primary);
+    border-bottom: 1px solid var(--border); letter-spacing: -0.3px;
+  }
+  .sidebar-logo span { color: var(--text); }
+  .sidebar-user {
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+    font-size: 12px; color: var(--muted);
+  }
+  .sidebar-user strong { display: block; color: var(--text); font-size: 13px; }
+  .sidebar-user .role-badge {
+    display: inline-block; margin-top: 3px; padding: 1px 7px;
+    border-radius: 20px; font-size: 10px; font-weight: 600; text-transform: uppercase;
+  }
+  .role-badge.admin { background: #3730a3; color: #c7d2fe; }
+  .role-badge.sales { background: #164e63; color: #a5f3fc; }
+  nav { flex: 1; padding: 10px 0; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; cursor: pointer; transition: background .15s;
+    border-radius: 0; color: var(--muted); font-size: 13px;
+  }
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: var(--card); color: var(--primary); border-right: 3px solid var(--primary); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border); }
+  .btn-logout {
+    width: 100%; padding: 8px; background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 6px; cursor: pointer; font-size: 12px; transition: all .15s;
+  }
+  .btn-logout:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+  #main { margin-left: 220px; flex: 1; padding: 28px; min-height: 100vh; }
+
+  /* ── AUTH ── */
+  #auth-page {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg); padding: 20px;
+  }
+  .auth-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 36px 32px; width: 100%; max-width: 420px;
+  }
+  .auth-box h1 { font-size: 22px; color: var(--primary); margin-bottom: 4px; }
+  .auth-box p { color: var(--muted); margin-bottom: 24px; font-size: 13px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 9px 12px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text); font-size: 13px; transition: border .15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--primary);
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .btn {
+    padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; transition: all .15s;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-h); }
+  .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { opacity: .85; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-full { width: 100%; }
+  .error-msg { color: var(--danger); font-size: 12px; margin-top: 8px; }
+
+  /* ── USER CARDS on login ── */
+  .users-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px; margin: 16px 0;
+  }
+  .user-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 12px; cursor: pointer; transition: all .15s; text-align: center;
+  }
+  .user-card:hover { border-color: var(--primary); background: #1e2236; }
+  .user-card.selected { border-color: var(--primary); background: #1e2236; box-shadow: 0 0 0 2px var(--primary); }
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: #fff; margin: 0 auto 8px;
+  }
+  .user-avatar.sales-av { background: #0e7490; }
+  .user-card-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .user-card-role { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; }
+  .divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--muted); font-size: 11px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── PAGE HEADER ── */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; text-align: center;
+  }
+  .stat-card .val { font-size: 28px; font-weight: 700; }
+  .stat-card .lbl { font-size: 11px; color: var(--muted); margin-top: 3px; text-transform: uppercase; }
+  .c-total { color: var(--text); }
+  .c-new { color: var(--info); }
+  .c-contacted { color: var(--warn); }
+  .c-converted { color: var(--success); }
+  .c-lost { color: var(--danger); }
+
+  /* ── LEADS TABLE ── */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-input {
+    flex: 1; min-width: 180px; padding: 8px 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 13px;
+  }
+  .search-input:focus { outline: none; border-color: var(--primary); }
+  .filter-select {
+    padding: 8px 10px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 7px; color: var(--text); font-size: 12px; cursor: pointer;
+  }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase;
+    color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; cursor: pointer; }
+  tbody tr:hover { background: var(--surface); }
+  tbody td { padding: 11px 12px; font-size: 13px; }
+  .status-badge {
+    display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .s-new { background: #1e3a5f; color: #93c5fd; }
+  .s-contacted { background: #3b2900; color: #fcd34d; }
+  .s-converted { background: #052e16; color: #86efac; }
+  .s-lost { background: #3b0a0a; color: #fca5a5; }
+  .source-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+    background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; width: 100%; max-width: 520px; max-height: 90vh;
+    overflow-y: auto; padding: 28px;
+  }
+  .modal h3 { font-size: 17px; margin-bottom: 18px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .note-item { background: var(--card); border-radius: 7px; padding: 10px 12px; margin-bottom: 8px; }
+  .note-item p { font-size: 13px; }
+  .note-item small { color: var(--muted); font-size: 11px; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .detail-field label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 3px; }
+  .detail-field span { font-size: 13px; }
+
+  /* ── TEAM PAGE ── */
+  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .team-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .team-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%; background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: #fff; flex-shrink: 0;
+  }
+  .avatar.sales-av { background: #0e7490; }
+  .team-info strong { display: block; font-size: 14px; }
+  .team-info small { color: var(--muted); font-size: 12px; }
+  .team-card-actions { display: flex; gap: 8px; }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
+  .empty .icon { font-size: 42px; margin-bottom: 12px; }
+
+  /* ── SOURCE CHART ── */
+  .source-bar { margin-bottom: 8px; }
+  .source-bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .source-bar-track { height: 8px; background: var(--card); border-radius: 4px; overflow: hidden; }
+  .source-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .4s; }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- AUTH PAGE -->
+<div id="auth-page">
+  <div class="auth-box" id="login-box">
+    <h1>🚀 LeadFlow CRM</h1>
+    <p>Sign in to your account</p>
+
+    <!-- Quick-access user cards (populated from API) -->
+    <div id="user-cards-section">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">Quick select a user:</p>
+      <div class="users-grid" id="user-cards"></div>
+      <div class="divider">or enter manually</div>
+    </div>
+
+    <div class="form-group">
+      <label>Username</label>
+      <input id="login-username" type="text" placeholder="username" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input id="login-password" type="password" placeholder="password" autocomplete="current-password" />
+    </div>
+    <div id="login-error" class="error-msg"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="doLogin()">Sign In</button>
+  </div>
+
+  <!-- Setup box -->
+  <div class="auth-box hidden" id="setup-box">
+    <h1>🚀 Welcome to LeadFlow</h1>
+    <p>Create your admin account to get started</p>
+    <div class="form-group"><label>Full Name</label><input id="setup-name" type="text" placeholder="Your name" /></div>
+    <div class="form-group"><label>Username</label><input id="setup-username" type="text" placeholder="admin" /></div>
+    <div class="form-group"><label>Email (optional)</label><input id="setup-email" type="email" placeholder="you@example.com" /></div>
+    <div class="form-group"><label>Password</label><input id="setup-password" type="password" placeholder="Choose a strong password" /></div>
+    <div id="setup-error" class="error-msg"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="doSetup()">Create Admin Account</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="sidebar-logo">Lead<span>Flow</span></div>
+    <div class="sidebar-user">
+      <strong id="sb-name">—</strong>
+      <span class="role-badge" id="sb-role-badge">—</span>
+    </div>
+    <nav>
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" data-page="leads" onclick="showPage('leads')">
+        <span class="nav-icon">👥</span> Leads
+      </div>
+      <div class="nav-item hidden" id="nav-team" data-page="team" onclick="showPage('team')">
+        <span class="nav-icon">🏢</span> Team
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main id="main">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="page-header"><h2>Dashboard</h2></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="val c-total" id="st-total">0</div><div class="lbl">Total Leads</div></div>
+        <div class="stat-card"><div class="val c-new" id="st-new">0</div><div class="lbl">New</div></div>
+        <div class="stat-card"><div class="val c-contacted" id="st-contacted">0</div><div class="lbl">Contacted</div></div>
+        <div class="stat-card"><div class="val c-converted" id="st-converted">0</div><div class="lbl">Converted</div></div>
+        <div class="stat-card"><div class="val c-lost" id="st-lost">0</div><div class="lbl">Lost</div></div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;max-width:480px">
+        <h3 style="font-size:14px;margin-bottom:16px;color:var(--muted)">LEADS BY SOURCE</h3>
+        <div id="source-chart"></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="page-leads" class="hidden">
+      <div class="page-header">
+        <h2>Leads</h2>
+        <button class="btn btn-primary" onclick="openAddLead()">+ Add Lead</button>
+      </div>
+      <div class="toolbar">
+        <input class="search-input" id="lead-search" placeholder="Search name, email, source…" oninput="renderLeads()" />
+        <select class="filter-select" id="lead-filter" onchange="renderLeads()">
+          <option value="">All Status</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="converted">Converted</option>
+          <option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Phone</th><th>Source</th>
+              <th>Status</th><th>Follow-up</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+      <div id="leads-empty" class="empty hidden"><div class="icon">🔍</div><p>No leads found</p></div>
+    </div>
+
+    <!-- TEAM -->
+    <div id="page-team" class="hidden">
+      <div class="page-header">
+        <h2>Team</h2>
+        <button class="btn btn-primary" onclick="openAddUser()">+ Add Member</button>
+      </div>
+      <div class="team-grid" id="team-grid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- Lead Detail / Edit Modal -->
+<div class="modal-overlay hidden" id="lead-modal">
+  <div class="modal">
+    <h3 id="lead-modal-title">Lead Detail</h3>
+    <div class="detail-grid" id="lead-detail-content"></div>
+    <div id="lead-notes-section" style="margin-top:18px">
+      <h4 style="font-size:13px;color:var(--muted);margin-bottom:8px">NOTES</h4>
+      <div id="lead-notes-list"></div>
+      <div class="form-group" style="margin-top:10px">
+        <textarea id="new-note-text" placeholder="Add a note…"></textarea>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="addNote()">Add Note</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="deleteLead()">Delete</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('lead-modal')">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="openEditLead()">Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Lead Modal -->
+<div class="modal-overlay hidden" id="lead-form-modal">
+  <div class="modal">
+    <h3 id="lead-form-title">Add Lead</h3>
+    <input type="hidden" id="edit-lead-id" />
+    <div class="detail-grid">
+      <div class="form-group"><label>Name *</label><input id="f-name" type="text" /></div>
+      <div class="form-group"><label>Email *</label><input id="f-email" type="email" /></div>
+      <div class="form-group"><label>Phone</label><input id="f-phone" type="text" /></div>
+      <div class="form-group">
+        <label>Source</label>
+        <select id="f-source">
+          <option>Referral</option><option>Website Chat</option><option>Cold Email</option>
+          <option>Social Media</option><option>Contact Form</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="new">New</option><option value="contacted">Contacted</option>
+          <option value="converted">Converted</option><option value="lost">Lost</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Follow-up Date</label><input id="f-followup" type="date" /></div>
+    </div>
+    <div class="form-group" style="margin-top:8px"><label>Note</label><textarea id="f-note" placeholder="Optional note…"></textarea></div>
+    <div id="lead-form-error" class="error-msg"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('lead-form-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveLead()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal-overlay hidden" id="user-form-modal">
+  <div class="modal">
+    <h3>Add Team Member</h3>
+    <div class="form-group"><label>Full Name *</label><input id="uf-name" type="text" /></div>
+    <div class="form-group"><label>Username *</label><input id="uf-username" type="text" /></div>
+    <div class="form-group"><label>Email</label><input id="uf-email" type="email" /></div>
+    <div class="form-group"><label>Password *</label><input id="uf-password" type="password" /></div>
+    <div class="form-group">
+      <label>Role</label>
+      <select id="uf-role"><option value="sales">Sales</option><option value="admin">Admin</option></select>
+    </div>
+    <div id="user-form-error" class="error-msg"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('user-form-modal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveUser()">Add Member</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let token = localStorage.getItem('lf_token') || '';
+let currentUser = null;
+let allLeads = [];
+let activeLead = null;
+
+// ── API ──
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
+}
+
+// ── BOOT ──
+async function boot() {
+  // Load user list for quick login
+  loadUserCards();
+
+  try {
+    const setup = await api('GET', '/setup-needed');
+    if (setup.needed) {
+      document.getElementById('login-box').classList.add('hidden');
+      document.getElementById('setup-box').classList.remove('hidden');
+      return;
+    }
+  } catch(e) {}
+
+  if (token) {
+    try {
+      currentUser = await api('GET', '/me');
+      showApp();
+      return;
+    } catch(e) { token = ''; localStorage.removeItem('lf_token'); }
+  }
+}
+
+// ── LOAD USER CARDS ──
+async function loadUserCards() {
+  try {
+    const users = await api('GET', '/users/list');
+    const container = document.getElementById('user-cards');
+    const section = document.getElementById('user-cards-section');
+    if (!users.length) { section.classList.add('hidden'); return; }
+    container.innerHTML = users.map(u => `
+      <div class="user-card" onclick="selectUserCard(this, '${u.username}')">
+        <div class="user-avatar ${u.role === 'sales' ? 'sales-av' : ''}">${u.name[0].toUpperCase()}</div>
+        <div class="user-card-name">${u.name}</div>
+        <div class="user-card-role">${u.role}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('user-cards-section').classList.add('hidden');
+  }
+}
+
+function selectUserCard(el, username) {
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('login-username').value = username;
+  document.getElementById('login-password').focus();
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  document.getElementById('login-error').textContent = '';
+  try {
+    const r = await api('POST', '/login', { username, password });
+    token = r.token;
+    localStorage.setItem('lf_token', token);
+    currentUser = { userId: null, username: r.username, name: r.name, role: r.role };
+    showApp();
+  } catch(e) {
+    document.getElementById('login-error').textContent = e.message;
+  }
+}
+
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ── SETUP ──
+async function doSetup() {
+  const name = document.getElementById('setup-name').value.trim();
+  const username = document.getElementById('setup-username').value.trim();
+  const email = document.getElementById('setup-email').value.trim();
+  const password = document.getElementById('setup-password').value;
+  document.getElementById('setup-error').textContent = '';
+  if (!name || !username || !password) {
+    document.getElementById('setup-error').textContent = 'Name, username and password are required';
+    return;
+  }
+  try {
+    await api('POST', '/setup', { name, username, email, password });
+    document.getElementById('setup-box').classList.add('hidden');
+    document.getElementById('login-box').classList.remove('hidden');
+    loadUserCards();
+  } catch(e) {
+    document.getElementById('setup-error').textContent = e.message;
+  }
+}
+
+// ── SHOW APP ──
+function showApp() {
+  document.getElementById('auth-page').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('sb-name').textContent = currentUser.name;
+  const badge = document.getElementById('sb-role-badge');
+  badge.textContent = currentUser.role;
+  badge.className = 'role-badge ' + currentUser.role;
+  if (currentUser.role === 'admin') {
+    document.getElementById('nav-team').classList.remove('hidden');
+  }
+  showPage('dashboard');
+}
+
+// ── LOGOUT ──
+async function doLogout() {
+  try { await api('POST', '/logout'); } catch(e) {}
+  token = ''; localStorage.removeItem('lf_token'); currentUser = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('auth-page').classList.remove('hidden');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.querySelectorAll('.user-card').forEach(c => c.classList.remove('selected'));
+  loadUserCards();
+}
+
+// ── PAGES ──
+function showPage(page) {
+  ['dashboard','leads','team'].forEach(p => {
+    document.getElementById('page-' + p).classList.toggle('hidden', p !== page);
+    const nav = document.querySelector(`[data-page="${p}"]`);
+    if (nav) nav.classList.toggle('active', p === page);
+  });
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'leads') loadLeads();
+  if (page === 'team') loadTeam();
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  try {
+    const s = await api('GET', '/stats');
+    document.getElementById('st-total').textContent = s.total;
+    document.getElementById('st-new').textContent = s.new;
+    document.getElementById('st-contacted').textContent = s.contacted;
+    document.getElementById('st-converted').textContent = s.converted;
+    document.getElementById('st-lost').textContent = s.lost;
+    const max = Math.max(...s.sources.map(x => x.c), 1);
+    document.getElementById('source-chart').innerHTML = s.sources.map(src => `
+      <div class="source-bar">
+        <div class="source-bar-label"><span>${src.source}</span><span>${src.c}</span></div>
+        <div class="source-bar-track"><div class="source-bar-fill" style="width:${(src.c/max*100).toFixed(1)}%"></div></div>
+      </div>
+    `).join('') || '<p style="color:var(--muted);font-size:13px">No data yet</p>';
+  } catch(e) {}
+}
+
+// ── LEADS ──
+async function loadLeads() {
+  try { allLeads = await api('GET', '/leads'); } catch(e) { allLeads = []; }
+  renderLeads();
+}
+
+function renderLeads() {
+  const search = document.getElementById('lead-search').value.toLowerCase();
+  const filter = document.getElementById('lead-filter').value;
+  let leads = allLeads;
+  if (filter) leads = leads.filter(l => l.status === filter);
+  if (search) leads = leads.filter(l =>
+    l.name.toLowerCase().includes(search) ||
+    l.email.toLowerCase().includes(search) ||
+    (l.source || '').toLowerCase().includes(search)
+  );
+  const tbody = document.getElementById('leads-tbody');
+  const empty = document.getElementById('leads-empty');
+  if (!leads.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = leads.map(l => `
+    <tr onclick="viewLead('${l.id}')">
+      <td><strong>${l.name}</strong></td>
+      <td style="color:var(--muted)">${l.email}</td>
+      <td style="color:var(--muted)">${l.phone || '—'}</td>
+      <td><span class="source-tag">${l.source}</span></td>
+      <td><span class="status-badge s-${l.status}">${l.status}</span></td>
+      <td style="color:var(--muted)">${l.followup || '—'}</td>
+      <td onclick="event.stopPropagation()">
+        <button class="btn btn-secondary btn-sm" onclick="viewLead('${l.id}')">View</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function statusBadge(s) {
+  return `<span class="status-badge s-${s}">${s}</span>`;
+}
+
+// ── VIEW LEAD ──
+async function viewLead(id) {
+  try {
+    activeLead = await api('GET', '/leads/' + id);
+    const l = activeLead;
+    document.getElementById('lead-modal-title').textContent = l.name;
+    document.getElementById('lead-detail-content').innerHTML = `
+      <div class="detail-field"><label>Email</label><span>${l.email}</span></div>
+      <div class="detail-field"><label>Phone</label><span>${l.phone || '—'}</span></div>
+      <div class="detail-field"><label>Source</label><span>${l.source}</span></div>
+      <div class="detail-field"><label>Status</label><span>${statusBadge(l.status)}</span></div>
+      <div class="detail-field"><label>Follow-up</label><span>${l.followup || '—'}</span></div>
+      <div class="detail-field"><label>Created</label><span>${new Date(l.created_at).toLocaleDateString()}</span></div>
+    `;
+    document.getElementById('lead-notes-list').innerHTML = l.notes.length
+      ? l.notes.slice().reverse().map(n => `
+          <div class="note-item">
+            <p>${n.text}</p>
+            <small>${new Date(n.date).toLocaleString()}</small>
+          </div>`).join('')
+      : '<p style="color:var(--muted);font-size:12px">No notes yet</p>';
+    document.getElementById('new-note-text').value = '';
+    document.getElementById('lead-modal').classList.remove('hidden');
+  } catch(e) {}
+}
+
+async function addNote() {
+  const text = document.getElementById('new-note-text').value.trim();
+  if (!text || !activeLead) return;
+  try {
+    activeLead = await api('POST', '/leads/' + activeLead.id + '/notes', { text });
+    await viewLead(activeLead.id);
+    await loadLeads();
+  } catch(e) {}
+}
+
+async function deleteLead() {
+  if (!activeLead) return;
+  if (!confirm('Delete this lead?')) return;
+  try {
+    await api('DELETE', '/leads/' + activeLead.id);
+    closeModal('lead-modal');
+    loadLeads();
+    loadDashboard();
+  } catch(e) { alert(e.message); }
+}
+
+// ── ADD / EDIT LEAD ──
+function openAddLead() {
+  document.getElementById('lead-form-title').textContent = 'Add Lead';
+  document.getElementById('edit-lead-id').value = '';
+  ['f-name','f-email','f-phone','f-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-source').value = 'Referral';
+  document.getElementById('f-status').value = 'new';
+  document.getElementById('f-followup').value = '';
+  document.getElementById('lead-form-error').textContent = '';
+  document.getElementById('lead-form-modal').classList.remove('hidden');
+}
+
+function openEditLead() {
+  if (!activeLead) return;
+  const l = activeLead;
+  document.getElementById('lead-form-title').textContent = 'Edit Lead';
+  document.getElementById('edit-lead-id').value = l.id;
+  document.getElementById('f-name').value = l.name;
+  document.getElementById('f-email').value = l.email;
+  document.getElementById('f-phone').value = l.phone || '';
+  document.getElementById('f-source').value = l.source;
+  document.getElementById('f-status').value = l.status;
+  document.getElementById('f-followup').value = l.followup || '';
+  document.getElementById('f-note').value = '';
+  document.getElementById('lead-form-error').textContent = '';
+  closeModal('lead-modal');
+  document.getElementById('lead-form-modal').classList.remove('hidden');
+}
+
+async function saveLead() {
+  const id = document.getElementById('edit-lead-id').value;
+  const body = {
+    name: document.getElementById('f-name').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    source: document.getElementById('f-source').value,
+    status: document.getElementById('f-status').value,
+    followup: document.getElementById('f-followup').value,
+    note: document.getElementById('f-note').value.trim(),
+  };
+  document.getElementById('lead-form-error').textContent = '';
+  if (!body.name || !body.email) {
+    document.getElementById('lead-form-error').textContent = 'Name and email are required';
+    return;
+  }
+  try {
+    if (id) await api('PATCH', '/leads/' + id, body);
+    else await api('POST', '/leads', body);
+    closeModal('lead-form-modal');
+    loadLeads();
+    loadDashboard();
+  } catch(e) {
+    document.getElementById('lead-form-error').textContent = e.message;
+  }
+}
+
+// ── TEAM ──
+async function loadTeam() {
+  try {
+    const users = await api('GET', '/users');
+    document.getElementById('team-grid').innerHTML = users.map(u => `
+      <div class="team-card">
+        <div class="team-card-top">
+          <div class="avatar ${u.role === 'sales' ? 'sales-av' : ''}">${u.name[0].toUpperCase()}</div>
+          <div class="team-info">
+            <strong>${u.name}</strong>
+            <small>${u.username} · <span class="role-badge ${u.role}" style="font-size:10px">${u.role}</span></small>
+          </div>
+        </div>
+        ${u.email ? `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">${u.email}</p>` : ''}
+        <div class="team-card-actions">
+          ${currentUser.userId !== u.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.id}','${u.name}')">Remove</button>` : '<span style="font-size:11px;color:var(--muted)">You</span>'}
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+function openAddUser() {
+  ['uf-name','uf-username','uf-email','uf-password'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('uf-role').value = 'sales';
+  document.getElementById('user-form-error').textContent = '';
+  document.getElementById('user-form-modal').classList.remove('hidden');
+}
+
+async function saveUser() {
+  const body = {
+    name: document.getElementById('uf-name').value.trim(),
+    username: document.getElementById('uf-username').value.trim(),
+    email: document.getElementById('uf-email').value.trim(),
+    password: document.getElementById('uf-password').value,
+    role: document.getElementById('uf-role').value,
+  };
+  document.getElementById('user-form-error').textContent = '';
+  if (!body.name || !body.username || !body.password) {
+    document.getElementById('user-form-error').textContent = 'Name, username and password are required';
+    return;
+  }
+  try {
+    await api('POST', '/users', body);
+    closeModal('user-form-modal');
+    loadTeam();
+    loadUserCards(); // refresh login page cards
+  } catch(e) {
+    document.getElementById('user-form-error').textContent = e.message;
+  }
+}
+
+async function deleteUser(id, name) {
+  if (!confirm(`Remove ${name} from the team?`)) return;
+  try {
+    await api('DELETE', '/users/' + id);
+    loadTeam();
+    loadUserCards();
+  } catch(e) { alert(e.message); }
+}
+
+// ── MODAL HELPERS ──
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.add('hidden'); });
+});
+
+// ── START ──
+boot();
+</script>
+</body>
+</html>

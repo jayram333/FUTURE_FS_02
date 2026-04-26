@@ -1,0 +1,208 @@
+{
+  "leads": [
+    {
+      "id": "lead_1772891028137_2a8371",
+      "owner": "user_1772891028132_26162b",
+      "name": "Himateja nakka",
+      "email": "himateja@gmail.com",
+      "phone": "+91 98480 12345",
+      "source": "Referral",
+      "status": "new",
+      "followup": "2026-03-15",
+      "notes": [],
+      "created_at": "2026-03-06T13:43:48.137Z",
+      "updated_at": "2026-03-09T16:51:48.225Z"
+    },
+    {
+      "id": "lead_1772891028137_d93b63",
+      "owner": "user_1772891028132_26162b",
+      "name": "Gautham sai",
+      "email": "gauthamsai@gmail.com",
+      "phone": "+91 90000 54321",
+      "source": "Website Chat",
+      "status": "contacted",
+      "followup": "2026-03-12",
+      "notes": [
+        {
+          "text": "Interested in professional plan. Schedule demo.",
+          "date": "2026-03-05T13:43:48.137Z"
+        }
+      ],
+      "created_at": "2026-03-02T13:43:48.138Z",
+      "updated_at": "2026-03-09T16:50:31.391Z"
+    },
+    {
+      "id": "lead_1772891028138_c90ad0",
+      "owner": "user_1772891028132_26162b",
+      "name": "Jeevan varma",
+      "email": "jeevan.sai@innotech.in",
+      "phone": "+91 91234 67890",
+      "source": "Cold Email",
+      "status": "converted",
+      "followup": "2026-12-22",
+      "notes": [
+        {
+          "text": "Signed 6-month contract. Onboarding next week.",
+          "date": "2026-03-04T13:43:48.138Z"
+        }
+      ],
+      "created_at": "2026-02-25T13:43:48.138Z",
+      "updated_at": "2026-03-09T16:49:54.057Z"
+    },
+    {
+      "id": "lead_1772891028138_0d8890",
+      "owner": "user_1772891028132_26162b",
+      "name": "Purna Chandra Rao",
+      "email": "purna.rao@vizagtech.com",
+      "phone": "+91 94400 33221",
+      "source": "Social Media",
+      "status": "new",
+      "followup": "2026-03-18",
+      "notes": [],
+      "created_at": "2026-03-05T13:43:48.138Z",
+      "updated_at": "2026-03-05T13:43:48.138Z"
+    },
+    {
+      "id": "lead_1772891028138_88b2c6",
+      "owner": "user_1772891028132_26162b",
+      "name": "Venkat durga",
+      "email": "venkatdurga22@gmail.com",
+      "phone": "+91 87654 11223",
+      "source": "Contact Form",
+      "status": "contacted",
+      "followup": "2026-03-10",
+      "notes": [
+        {
+          "text": "Asked for pricing sheet. Sent via email.",
+          "date": "2026-03-06T13:43:48.138Z"
+        }
+      ],
+      "created_at": "2026-03-03T13:43:48.138Z",
+      "updated_at": "2026-03-09T16:51:05.417Z"
+    },
+    {
+      "id": "lead_1772891028138_b93b4e",
+      "owner": "user_1772891028132_26162b",
+      "name": "Srinivas",
+      "email": "srini@gmail.com",
+      "phone": "+91 99887 44556",
+      "source": "Referral",
+      "status": "lost",
+      "followup": "",
+      "notes": [
+        {
+          "text": "Budget constraints. Follow up in Q4.",
+          "date": "2026-02-28T13:43:48.138Z"
+        }
+      ],
+      "created_at": "2026-02-20T13:43:48.138Z",
+      "updated_at": "2026-03-09T16:52:14.538Z"
+    },
+    {
+      "id": "lead_1772891028138_8208db",
+      "owner": "user_1772891028132_26162b",
+      "name": "Lakshmi Devi",
+      "email": "lakshmi99@gmail.com",
+      "phone": "+91 82200 77889",
+      "source": "Website Chat",
+      "status": "converted",
+      "followup": "",
+      "notes": [
+        {
+          "text": "Paid annual plan via NEFT. Very happy with demo.",
+          "date": "2026-03-02T13:43:48.138Z"
+        }
+      ],
+      "created_at": "2026-02-23T13:43:48.138Z",
+      "updated_at": "2026-03-09T16:52:35.308Z"
+    },
+    {
+      "id": "lead_1772891028138_9a6d3e",
+      "owner": "user_1772891028132_26162b",
+      "name": "Varma jeevan",
+      "email": "varma@gmail.com",
+      "phone": "+91 95560 98765",
+      "source": "Cold Email",
+      "status": "new",
+      "followup": "2026-03-20",
+      "notes": [],
+      "created_at": "2026-03-07T13:43:48.139Z",
+      "updated_at": "2026-03-09T16:51:19.041Z"
+    },
+    {
+      "id": "lead_1772891028139_2839ad",
+      "owner": "user_1772891028132_26162b",
+      "name": "Bhavani Devi Kolli",
+      "email": "bhavani.k@sriven.co.in",
+      "phone": "+91 76540 12398",
+      "source": "Social Media",
+      "status": "contacted",
+      "followup": "2026-03-11",
+      "notes": [
+        {
+          "text": "Wants team collaboration features. Send brochure.",
+          "date": "2026-03-06T13:43:48.139Z"
+        }
+      ],
+      "created_at": "2026-03-04T13:43:48.139Z",
+      "updated_at": "2026-03-06T13:43:48.139Z"
+    },
+    {
+      "id": "lead_1772891028139_8cb069",
+      "owner": "user_1772891028132_26162b",
+      "name": "Ravi Teja",
+      "email": "raviteja@gmail.com",
+      "phone": "+91 88000 23456",
+      "source": "Referral",
+      "status": "new",
+      "followup": "2026-03-22",
+      "notes": [],
+      "created_at": "2026-03-06T13:43:48.139Z",
+      "updated_at": "2026-03-07T13:45:46.060Z"
+    },
+    {
+      "id": "lead_1772891028139_306dfb",
+      "owner": "user_1772891028132_26162b",
+      "name": "Chalapathi Rao Kota",
+      "email": "chala.rao@vizagsys.in",
+      "phone": "+91 97050 66778",
+      "source": "Contact Form",
+      "status": "contacted",
+      "followup": "2026-03-13",
+      "notes": [
+        {
+          "text": "Called twice, interested in startup plan.",
+          "date": "2026-03-05T13:43:48.139Z"
+        }
+      ],
+      "created_at": "2026-03-01T13:43:48.139Z",
+      "updated_at": "2026-03-05T13:43:48.139Z"
+    },
+    {
+      "id": "lead_1772891028139_2aea65",
+      "owner": "user_1772891028132_26162b",
+      "name": "Mounika",
+      "email": "mounika@gmail.com",
+      "phone": "+91 93310 45612",
+      "source": "Social Media",
+      "status": "new",
+      "followup": "2026-03-25",
+      "notes": [],
+      "created_at": "2026-03-07T13:43:48.139Z",
+      "updated_at": "2026-03-07T13:45:20.880Z"
+    },
+    {
+      "id": "lead_1773075564909_7067f6",
+      "owner": "user_1772891028132_26162b",
+      "name": "gautham",
+      "email": "gautham@gmail.com",
+      "phone": "",
+      "source": "Referral",
+      "status": "contacted",
+      "followup": "2026-03-04",
+      "notes": [],
+      "created_at": "2026-03-09T16:59:24.908Z",
+      "updated_at": "2026-03-09T16:59:24.908Z"
+    }
+  ]
+}

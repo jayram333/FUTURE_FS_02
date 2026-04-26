@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": "user_1772891028132_26162b",
+      "username": "balu",
+      "password": "c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646",
+      "name": "balakrishna",
+      "email": "balakrishna@gmail.com",
+      "role": "admin"
+    }
+  ]
+}
